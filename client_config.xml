@@ -1,0 +1,7 @@
+<config>
+	<host>JSI-iDPL02</host>
+	<port>8888</port>
+	<path>/tmp/testbykun/test1.txt</path>
+	<timestamp>0</timestamp>
+	<offset>0</offset>
+</config>
