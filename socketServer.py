@@ -32,15 +32,18 @@ class Server:
 				timestamp, offset = data.split(',') 
 				strAdded, timestampNew, offsetNew= fileReader.FileReader().chooseLines(float(timestamp), int(offset), self.path)
 				dataToSend = strAdded + "KUNSIGN" + timestampNew + "KUNSIGN" + offsetNew
-				print((strAdded))
+				print(len(strAdded))
 				conn.sendall(str(len(dataToSend)))
 			elif self.match("kunBegin", data):
 				conn.sendall(dataToSend)
+			elif self.match("kunStop", data):
+				#print("value error")
+				raise
 			else: 
 				print("Done!")
 				break
 		#conn.send("bye\n")
-		conn.close()
+		#conn.close()
 
 	def match(self, reg, strToMatch):
 		return re.compile(reg).match(strToMatch)
@@ -49,35 +52,40 @@ class Server:
 
 	def changeFlag(self):
 		time.sleep(2)
-		chirp.setJobAttr("IperfServer","'%s %d'" % (HOST, PORT))
+		chirp.setJobAttr("SocketServer","'%s %d'" % (HOST, PORT))
 		print("ChangeFlag()")
 	
 	def serve(self):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		print "Socket created"
+		print ("Socket created")
 		try:
 			s.bind((HOST, PORT))
 		except socket.error, msg:
-			print "Bind failed. Error Code : " + str(msg[0]) + " Message " + msg[1]
+			print ("Bind failed. Error Code : " + str(msg[0]) + " Message " + msg[1])
 			sys.exit()
 
-		print "Socket bind complete"
+		print ("Socket bind complete")
 
 		s.listen(1)
-		print "socket now listening"
+		print ("socket now listening")
 
 		flagOfCondor = ""
 		start_new_thread(self.changeFlag, ())
 		conn, addr = s.accept()
 		print ("Connected with " + addr[0] + ":" + str(addr[1]))
-
-		self.commuWithClient(conn)
-
-		s.close()
-		print "socket close now !"
+		try:
+			self.commuWithClient(conn)
+		except :
+			print ("value error!")
+		finally:
+			s.close()
+			print ("socket close now !")
+		print("exit")
 		sys.exit()
 
 if __name__ == '__main__':
-	server = Server()
+	if len(sys.argv) < 4:
+		print ("server val num error")
+	server = Server(sys.argv[1], sys.argv[2], sys.argv[3])
 	server.serve()
 

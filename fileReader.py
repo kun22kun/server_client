@@ -15,7 +15,7 @@ class FileReader:
 	
 	def read(self, fileUriNow):
 		with open(fileUriNow) as text:
-			print("fileReader, file is " + fileUriNow)
+			#print("fileReader, file is " + fileUriNow)
 			return text.readlines()
 	
 	def getALine(self, fileLines):
@@ -26,9 +26,9 @@ class FileReader:
 		
 		if match:
 			timestampNow = match.group()[1:(len(match.group()) - 1)].split(',')[3]
-			print (timestampNow)
+			#print (timestampNow)
 			if not self.isHasChanged:
-				print (self.offsetNow)
+				#print (self.offsetNow)
 				self.timestampNew = timestampNow
 				self.offsetNew = self.offsetNow
 				self.isHasChanged = True
@@ -59,20 +59,20 @@ class FileReader:
 	def chooseLines(self, timestamp, offsetL, path):
 		#self.fileUri = "/home/kun/GraduationProject/ServerClient0.11/test.txt"
 		self.fileUri = path
-		print "file is:" + self.fileUri
+		#print "file is:" + self.fileUri
 		self.offsetLast = offsetL
 		reg = "'iperf.*'"
 		isTimeReached = False
 		strAdded = []
 		fileUriNow = self.fileUri
-		suffix = 1
+		suffix = 0
 		while (not isTimeReached and os.path.exists(fileUriNow)):
 			fileLines = self.read(fileUriNow)
 			strAdded, isTimeReached = self.chooseLinesInAFile(fileLines, reg, timestamp, strAdded, isTimeReached)
 			fileUriNow, suffix = self.getNewFilePath(suffix)
 			print ("isTimeReached: " + str(isTimeReached) + " file is: " + fileUriNow + " suffix is: " + str(suffix) + " is: " + str(os.path.exists(fileUriNow)))
-		print (''.join(strAdded))
-		print("Now offset is: " + str(self.offsetNew))
+		#print (''.join(strAdded))
+		#print("Now offset is: " + str(self.offsetNew))
 		return ''.join(strAdded[self.offsetLast:]), self.timestampNew, str(self.offsetNew)
 
 if __name__ == '__main__':

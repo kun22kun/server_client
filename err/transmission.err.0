@@ -1,5 +1,4 @@
-Family  : AF_INET
-Type    : SOCK_STREAM
-Protocol: IPPROTO_TCP
-
-closing socket
+Traceback (most recent call last):
+  File "/var/lib/condor/execute/dir_28256/condor_exec.exe", line 38, in <module>
+    raise TimeOutException("client")
+IDPLException.TimeOutException

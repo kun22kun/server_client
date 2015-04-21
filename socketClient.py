@@ -29,8 +29,6 @@ class Client:
 		print >>sys.stderr, 'Protocol:', protocols[sock.proto]
 		print >>sys.stderr
 
-	
-		 
 	def demand(self):
 		
 		print ("client demand")
@@ -45,7 +43,7 @@ class Client:
 			
 		interval = 5
 		maxtries = 12*3
-		serverInfo = chirp.getJobAttrWait("IperfServer",None,interval, maxtries)	
+		serverInfo = chirp.getJobAttrWait("SocketServer",None,interval, maxtries)	
 		print "serverInfo is:" + serverInfo
 		#hostFromCondor,portFromCondor = serverInfo.strip("'").split()
 		#print hostFromCondor, portFromCondor
@@ -60,29 +58,29 @@ class Client:
 			message = timestamp + ',' + offset
 			sock.sendall(message)
 			amount_received = 0			
-			amount = sock.recv(8)
-			print amount
-			if amount:
-				sock.sendall("kunBegin")
-			else:
-				sock.sendall("kunStop")
+			amount = int(sock.recv(8))
+			#print amount
+			sock.sendall("kunBegin")
     			
 			dataComp = ""
 			while amount_received < int(amount):
 				print (amount_received, amount)
-				data = sock.recv(128)
+				data = sock.recv(min(4096, int(amount) - amount_received))
 				dataComp += data
 				amount_received += len(data)
 			
 			strAdded, timestamp, offset = dataComp.split("KUNSIGN")
 			
 			print strAdded
-			
-			with open(path, "a") as output:
-				output.write(strAdded)
-			print "time is " + timestamp
-			if timestamp and offset:
-				xmlHandler.write(timestamp, offset, self.config)
+			if not amount_received < amount:
+				with open(path, "a") as output:
+					output.write(strAdded)
+				print "time is " + timestamp
+				if timestamp and offset:
+					xmlHandler.write(timestamp, offset, self.config)
+		except:
+			sock.sendall("kunStop")
+			print "amount value error"
 		
 		finally:
 			print >>sys.stderr, 'closing socket'
@@ -90,5 +88,7 @@ class Client:
 			print("dadada")
 
 if __name__ == '__main__':
-	client = Client()
+	if len(sys.argv) < 2:
+		print ("client val num error!")
+	client = Client(sys.argv[1])
 	client.demand()
